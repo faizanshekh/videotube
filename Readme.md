@@ -78,8 +78,8 @@ Auth handling: Redux Toolkit session restore on load, axios interceptor that att
 ### Install
 
 ```bash
-git clone https://github.com/faizanshekh/videotube-nodejs-backend.git
-cd videotube-nodejs-backend
+git clone https://github.com/faizanshekh/videotube.git
+cd videotube
 npm install
 npm install --prefix client
 ```
