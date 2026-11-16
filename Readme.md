@@ -1,6 +1,6 @@
 # VideoTube — MERN Video Platform
 
-A full-stack YouTube-style video platform built with the **MERN stack** (MongoDB, Express, React, Node.js). The project follows the [Chai aur Code backend series](https://www.youtube.com/watch?v=EH3vGeqeIAo&list=PLu71SKxNbfoBGh_8p_NS-ZAh6v7HhYqHW) and extends it with a complete React frontend.
+A full-stack YouTube-style video platform built with the **MERN stack** (MongoDB, Express, React, Node.js) — a REST API backend with a complete React frontend.
 
 ## Highlights
 
@@ -235,7 +235,3 @@ Boots the API against an in-memory MongoDB and runs 26 checks covering health, t
 - Educational project — no production deployment or HTTPS termination; Cloudinary credentials are required for registration/uploads.
 - No automated frontend tests; the client is verified with `npm run lint` and `npm run build`.
 - Deleting a video does not cascade-delete its comments and likes, and its files are not removed from Cloudinary (`deleteFromCloudinary` is only used when replacing a user's avatar or cover image).
-
-## Learning resource
-
-[Chai aur Code — Backend playlist](https://www.youtube.com/watch?v=EH3vGeqeIAo&list=PLu71SKxNbfoBGh_8p_NS-ZAh6v7HhYqHW)
