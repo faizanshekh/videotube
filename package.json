@@ -5,7 +5,13 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+    "dev:client": "npm run dev --prefix client",
+    "dev:all": "concurrently -n api,web -c blue,magenta \"npm run dev\" \"npm run dev --prefix client\"",
+    "build:client": "npm run build --prefix client",
+    "start": "node src/index.js",
+    "smoke": "node scripts/smoke.js",
+    "format": "prettier --write src"
   },
   "keywords": [
     "javascript",
@@ -15,6 +21,8 @@
   "author": "Hitesh Choudhary",
   "license": "ISC",
   "devDependencies": {
+    "concurrently": "^10.0.7",
+    "mongodb-memory-server": "^11.3.0",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3"
   },
@@ -25,6 +33,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
     "mongoose-aggregate-paginate-v2": "^1.0.6",

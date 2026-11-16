@@ -1,5 +1,6 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
+import {Like} from "../models/like.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
@@ -10,6 +11,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
 
     const pipeline = []
+
+    // Public feed only shows published videos
+    pipeline.push({
+        $match: {
+            isPublished: true,
+        },
+    })
 
     if (query) {
         pipeline.push({
@@ -140,9 +148,33 @@ const getVideoById = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Video not found")
     }
 
+    const [likesCount, likedByCurrentUser] = await Promise.all([
+        Like.countDocuments({ video: videoId }),
+        req.user?._id
+            ? Like.exists({ video: videoId, likedBy: req.user._id })
+            : Promise.resolve(null),
+    ])
+
+    // Count this request as a view
+    const updatedVideo = await Video.findByIdAndUpdate(
+        videoId,
+        { $inc: { views: 1 } },
+        { new: true }
+    ).populate("owner", "fullName username avatar")
+
     return res
     .status(200)
-    .json(new ApiResponse(200, video, "Video fetched successfully"))
+    .json(
+        new ApiResponse(
+            200,
+            {
+                ...updatedVideo.toObject(),
+                likesCount,
+                isLiked: Boolean(likedByCurrentUser),
+            },
+            "Video fetched successfully"
+        )
+    )
 })
 
 const updateVideo = asyncHandler(async (req, res) => {

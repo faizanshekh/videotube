@@ -1,4 +1,4 @@
-import { isValidObjectId } from "mongoose"
+import mongoose, { isValidObjectId } from "mongoose"
 import {Tweet} from "../models/tweet.model.js"
 import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
@@ -35,7 +35,64 @@ const getUserTweets = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found")
     }
 
-    const tweets = await Tweet.find({owner: userId}).sort({createdAt: -1})
+    const tweets = await Tweet.aggregate([
+        {
+            $match: {
+                owner: new mongoose.Types.ObjectId(userId),
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                    {
+                        $project: {
+                            fullName: 1,
+                            username: 1,
+                            avatar: 1,
+                        },
+                    },
+                ],
+            },
+        },
+        {
+            $lookup: {
+                from: "likes",
+                let: { tweetId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ["$tweet", "$$tweetId"] },
+                        },
+                    },
+                    {
+                        $project: { likedBy: 1 },
+                    },
+                ],
+                as: "likes",
+            },
+        },
+        {
+            $addFields: {
+                owner: { $first: "$owner" },
+                likesCount: { $size: "$likes" },
+                isLiked: {
+                    $in: [req.user?._id, "$likes.likedBy"],
+                },
+            },
+        },
+        {
+            $project: {
+                likes: 0,
+            },
+        },
+        {
+            $sort: { createdAt: -1 },
+        },
+    ])
 
     return res
     .status(200)
